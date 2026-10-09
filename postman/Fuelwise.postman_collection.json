@@ -1,0 +1,546 @@
+{
+	"info": {
+		"name": "Fuelwise \u2014 Local API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"description": "Import into Postman Desktop (or use its Desktop Agent for localhost). No HERE key or authentication is needed in Postman: the server reads .env. Start Docker with docker compose up -d. Run the 01 Demo folder in order. The first coordinate trip can use up to three HERE requests; replay should use zero while its cache is valid. Saved JSON and static SVG never call HERE. Optional examples can spend additional quota. The API allows 10 throttled requests per minute; wait a minute before repeating full collection runs if you receive 429. Address requests may use two geocoding calls in addition to three routing calls. Times are visible in Postman's response panel; no artificial latency threshold is asserted. This collection contains no credentials."
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "start_lat",
+			"value": "35.4676",
+			"type": "string"
+		},
+		{
+			"key": "start_lng",
+			"value": "-97.5164",
+			"type": "string"
+		},
+		{
+			"key": "finish_lat",
+			"value": "35.0844",
+			"type": "string"
+		},
+		{
+			"key": "finish_lng",
+			"value": "-106.6504",
+			"type": "string"
+		},
+		{
+			"key": "trip_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "map_path",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "map_url",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "view_path",
+			"value": ""
+		},
+		{
+			"key": "view_url",
+			"value": ""
+		}
+	],
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "01 Demo \u2014 run in order",
+			"item": [
+				{
+					"name": "1. Health",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/health/",
+						"description": "Database and server availability. No provider calls."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Healthy\", () => { pm.response.to.have.status(200); pm.expect(pm.response.json().status).to.equal(\"ok\"); });"
+								]
+							}
+						}
+					],
+					"response": []
+				},
+				{
+					"name": "2. Plan trip \u2014 coordinates",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/api/trips/plan",
+						"description": "Oklahoma City to Albuquerque. Coordinate variables are editable at collection level. Saves trip_id and map_url automatically on success.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"start\": {\"lat\": {{start_lat}}, \"lng\": {{start_lng}}},\n  \"finish\": {\"lat\": {{finish_lat}}, \"lng\": {{finish_lng}}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Trip created\", () => pm.response.to.have.status(201));",
+									"if (pm.response.code === 201) {",
+									"  const d = pm.response.json();",
+									"  pm.collectionVariables.set(\"trip_id\", d.id);",
+									"  pm.collectionVariables.set(\"map_path\", d.map_url);",
+									"  pm.collectionVariables.set(\"map_url\", pm.variables.get(\"base_url\").replace(/\\/$/, \"\") + d.map_url);",
+									"  pm.collectionVariables.set(\"view_path\", d.view_url);",
+									"  pm.collectionVariables.set(\"view_url\", pm.variables.get(\"base_url\").replace(/\\/$/, \"\") + d.view_url);",
+									"  pm.test(\"Road geometry returned\", () => pm.expect(d.route.geometry.type).to.equal(\"LineString\"));",
+									"  pm.test(\"At most three routing calls\", () => {",
+									"    pm.expect(d.routing_calls).to.be.at.most(3);",
+									"    pm.expect(d.provider_request_counts.routing).to.be.at.most(3);",
+									"  });",
+									"  pm.test(\"Physical fuel limits\", () => {",
+									"    d.legs.forEach(leg => {",
+									"      pm.expect(leg.distance_miles).to.be.at.most(500.001);",
+									"      pm.expect(leg.departure_fuel_gallons).to.be.within(0, 50.000001);",
+									"      pm.expect(leg.arrival_fuel_gallons).to.be.within(0, 50.000001);",
+									"    });",
+									"  });",
+									"  pm.test(\"Fuel conservation\", () => {",
+									"    const expected = 50 + d.total_gallons_purchased - d.distance_miles / 10;",
+									"    pm.expect(d.arrival_fuel_gallons).to.be.closeTo(expected, 0.001);",
+									"  });",
+									"  pm.test(\"Fuel costs reconcile within display rounding\", () => {",
+									"    const sum = d.stops.reduce((total, stop) => total + Number(stop.cost), 0);",
+									"    pm.expect(Number(d.total_fuel_cost)).to.be.closeTo(sum, 0.005 * d.stops.length + 0.011);",
+									"  });",
+									"}",
+									"if (pm.response.code === 201) {",
+									"  const d = pm.response.json();",
+									"  pm.test(\"Coordinates use no geocoding\", () => pm.expect(d.provider_request_counts.geocode).to.equal(0));",
+									"  pm.test(\"At most three TOTAL external calls\", () => pm.expect(d.provider_requests).to.be.at.most(3));",
+									"}"
+								]
+							}
+						}
+					],
+					"response": []
+				},
+				{
+					"name": "3. Repeat trip \u2014 verify cache",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/api/trips/plan",
+						"description": "Run immediately after request 2 without changing coordinates, dataset or routing settings. This checks actual external requests, not routing method invocations.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"start\": {\"lat\": {{start_lat}}, \"lng\": {{start_lng}}},\n  \"finish\": {\"lat\": {{finish_lat}}, \"lng\": {{finish_lng}}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Trip created\", () => pm.response.to.have.status(201));",
+									"if (pm.response.code === 201) {",
+									"  const d = pm.response.json();",
+									"  pm.collectionVariables.set(\"trip_id\", d.id);",
+									"  pm.collectionVariables.set(\"map_path\", d.map_url);",
+									"  pm.collectionVariables.set(\"map_url\", pm.variables.get(\"base_url\").replace(/\\/$/, \"\") + d.map_url);",
+									"  pm.collectionVariables.set(\"view_path\", d.view_url);",
+									"  pm.collectionVariables.set(\"view_url\", pm.variables.get(\"base_url\").replace(/\\/$/, \"\") + d.view_url);",
+									"  pm.test(\"Road geometry returned\", () => pm.expect(d.route.geometry.type).to.equal(\"LineString\"));",
+									"  pm.test(\"At most three routing calls\", () => {",
+									"    pm.expect(d.routing_calls).to.be.at.most(3);",
+									"    pm.expect(d.provider_request_counts.routing).to.be.at.most(3);",
+									"  });",
+									"  pm.test(\"Physical fuel limits\", () => {",
+									"    d.legs.forEach(leg => {",
+									"      pm.expect(leg.distance_miles).to.be.at.most(500.001);",
+									"      pm.expect(leg.departure_fuel_gallons).to.be.within(0, 50.000001);",
+									"      pm.expect(leg.arrival_fuel_gallons).to.be.within(0, 50.000001);",
+									"    });",
+									"  });",
+									"  pm.test(\"Fuel conservation\", () => {",
+									"    const expected = 50 + d.total_gallons_purchased - d.distance_miles / 10;",
+									"    pm.expect(d.arrival_fuel_gallons).to.be.closeTo(expected, 0.001);",
+									"  });",
+									"  pm.test(\"Fuel costs reconcile within display rounding\", () => {",
+									"    const sum = d.stops.reduce((total, stop) => total + Number(stop.cost), 0);",
+									"    pm.expect(Number(d.total_fuel_cost)).to.be.closeTo(sum, 0.005 * d.stops.length + 0.011);",
+									"  });",
+									"}",
+									"if (pm.response.code === 201) {",
+									"  const d = pm.response.json();",
+									"  pm.test(\"Coordinates use no geocoding\", () => pm.expect(d.provider_request_counts.geocode).to.equal(0));",
+									"  pm.test(\"At most three TOTAL external calls\", () => pm.expect(d.provider_requests).to.be.at.most(3));",
+									"}",
+									"if (pm.response.code === 201) pm.test(\"Cache replay makes zero external calls\", () => pm.expect(pm.response.json().provider_requests).to.equal(0));"
+								]
+							}
+						}
+					],
+					"response": []
+				},
+				{
+					"name": "4. Read saved trip",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/api/trips/{{trip_id}}",
+						"description": "Run a successful plan first. Stored provider counters describe the original planning operation, not this GET."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Saved trip found\", () => pm.response.to.have.status(200));",
+									"if (pm.response.code === 200) pm.test(\"Correct trip\", () => pm.expect(pm.response.json().id).to.equal(pm.collectionVariables.get(\"trip_id\")));"
+								]
+							}
+						}
+					],
+					"response": []
+				},
+				{
+					"name": "5. View static map",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "image/svg+xml"
+							}
+						],
+						"url": "{{base_url}}{{map_path}}",
+						"description": "Run a successful plan first. Choose Preview in Postman, or open the map_url collection variable in a browser. SVG is generated locally; no tiles or provider requests."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Static SVG returned\", () => { pm.response.to.have.status(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"image/svg+xml\"); pm.expect(pm.response.text()).to.include(\"<svg\"); pm.expect(pm.response.text()).not.to.include(\"<script\"); });"
+								]
+							}
+						}
+					],
+					"response": []
+				},
+				{
+					"name": "6. Interactive map",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
+						],
+						"url": "{{base_url}}{{view_path}}",
+						"description": "Run a successful plan first, then open view_url in a browser: an interactive Leaflet map with the road route, numbered fuel stops and per-leg tooltips. Leaflet is served locally; map tiles load in the browser from OpenStreetMap. The API makes no provider calls for this page."
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Interactive map page returned\", () => { pm.response.to.have.status(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/html\"); pm.expect(pm.response.text()).to.include(\"leaflet.js\"); pm.expect(pm.response.text()).to.include(\"trip-map.js\"); pm.expect(pm.response.text()).to.include(\"id=\\\"trip-data\\\"\"); pm.expect(pm.response.headers.get(\"Content-Security-Policy\")).to.include(\"script-src 'self'\"); });"
+								]
+							}
+						}
+					],
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "02 Optional examples \u2014 may use HERE quota",
+			"item": [
+				{
+					"name": "Short trip \u2014 no fuel purchase",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/api/trips/plan",
+						"description": "Oklahoma City to Tulsa: should fit in the initial full tank. Up to one uncached routing call.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"start\": {\n    \"lat\": 35.4676,\n    \"lng\": -97.5164\n  },\n  \"finish\": {\n    \"lat\": 36.15398,\n    \"lng\": -95.99277\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Trip created\", () => pm.response.to.have.status(201));",
+									"if (pm.response.code === 201) {",
+									"  const d = pm.response.json();",
+									"  pm.collectionVariables.set(\"trip_id\", d.id);",
+									"  pm.collectionVariables.set(\"map_path\", d.map_url);",
+									"  pm.collectionVariables.set(\"map_url\", pm.variables.get(\"base_url\").replace(/\\/$/, \"\") + d.map_url);",
+									"  pm.collectionVariables.set(\"view_path\", d.view_url);",
+									"  pm.collectionVariables.set(\"view_url\", pm.variables.get(\"base_url\").replace(/\\/$/, \"\") + d.view_url);",
+									"  pm.test(\"Road geometry returned\", () => pm.expect(d.route.geometry.type).to.equal(\"LineString\"));",
+									"  pm.test(\"At most three routing calls\", () => {",
+									"    pm.expect(d.routing_calls).to.be.at.most(3);",
+									"    pm.expect(d.provider_request_counts.routing).to.be.at.most(3);",
+									"  });",
+									"  pm.test(\"Physical fuel limits\", () => {",
+									"    d.legs.forEach(leg => {",
+									"      pm.expect(leg.distance_miles).to.be.at.most(500.001);",
+									"      pm.expect(leg.departure_fuel_gallons).to.be.within(0, 50.000001);",
+									"      pm.expect(leg.arrival_fuel_gallons).to.be.within(0, 50.000001);",
+									"    });",
+									"  });",
+									"  pm.test(\"Fuel conservation\", () => {",
+									"    const expected = 50 + d.total_gallons_purchased - d.distance_miles / 10;",
+									"    pm.expect(d.arrival_fuel_gallons).to.be.closeTo(expected, 0.001);",
+									"  });",
+									"  pm.test(\"Fuel costs reconcile within display rounding\", () => {",
+									"    const sum = d.stops.reduce((total, stop) => total + Number(stop.cost), 0);",
+									"    pm.expect(Number(d.total_fuel_cost)).to.be.closeTo(sum, 0.005 * d.stops.length + 0.011);",
+									"  });",
+									"}",
+									"if (pm.response.code === 201) {",
+									"  const d = pm.response.json();",
+									"  pm.test(\"Coordinates use no geocoding\", () => pm.expect(d.provider_request_counts.geocode).to.equal(0));",
+									"  pm.test(\"At most three TOTAL external calls\", () => pm.expect(d.provider_requests).to.be.at.most(3));",
+									"}",
+									"if (pm.response.code === 201) pm.test(\"Starting tank covers trip\", () => { const d = pm.response.json(); pm.expect(Number(d.total_fuel_cost)).to.equal(0); pm.expect(d.stops).to.have.lengthOf(0); pm.expect(d.routing_calls).to.be.at.most(1); });"
+								]
+							}
+						}
+					],
+					"response": []
+				},
+				{
+					"name": "Address inputs \u2014 extra geocoding allowance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/api/trips/plan",
+						"description": "Addresses are supported, but may add two geocoding calls. Use coordinates for the strict three-total-call requirement.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"start\": \"Oklahoma City, OK\",\n  \"finish\": \"Albuquerque, NM\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Trip created\", () => pm.response.to.have.status(201));",
+									"if (pm.response.code === 201) {",
+									"  const d = pm.response.json();",
+									"  pm.collectionVariables.set(\"trip_id\", d.id);",
+									"  pm.collectionVariables.set(\"map_path\", d.map_url);",
+									"  pm.collectionVariables.set(\"map_url\", pm.variables.get(\"base_url\").replace(/\\/$/, \"\") + d.map_url);",
+									"  pm.collectionVariables.set(\"view_path\", d.view_url);",
+									"  pm.collectionVariables.set(\"view_url\", pm.variables.get(\"base_url\").replace(/\\/$/, \"\") + d.view_url);",
+									"  pm.test(\"Road geometry returned\", () => pm.expect(d.route.geometry.type).to.equal(\"LineString\"));",
+									"  pm.test(\"At most three routing calls\", () => {",
+									"    pm.expect(d.routing_calls).to.be.at.most(3);",
+									"    pm.expect(d.provider_request_counts.routing).to.be.at.most(3);",
+									"  });",
+									"  pm.test(\"Physical fuel limits\", () => {",
+									"    d.legs.forEach(leg => {",
+									"      pm.expect(leg.distance_miles).to.be.at.most(500.001);",
+									"      pm.expect(leg.departure_fuel_gallons).to.be.within(0, 50.000001);",
+									"      pm.expect(leg.arrival_fuel_gallons).to.be.within(0, 50.000001);",
+									"    });",
+									"  });",
+									"  pm.test(\"Fuel conservation\", () => {",
+									"    const expected = 50 + d.total_gallons_purchased - d.distance_miles / 10;",
+									"    pm.expect(d.arrival_fuel_gallons).to.be.closeTo(expected, 0.001);",
+									"  });",
+									"  pm.test(\"Fuel costs reconcile within display rounding\", () => {",
+									"    const sum = d.stops.reduce((total, stop) => total + Number(stop.cost), 0);",
+									"    pm.expect(Number(d.total_fuel_cost)).to.be.closeTo(sum, 0.005 * d.stops.length + 0.011);",
+									"  });",
+									"}",
+									"if (pm.response.code === 201) pm.test(\"Address budget is explicit\", () => { const d = pm.response.json(); pm.expect(d.provider_request_counts.geocode).to.be.at.most(2); pm.expect(d.provider_requests).to.be.at.most(5); });"
+								]
+							}
+						}
+					],
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "03 Input validation \u2014 no HERE calls",
+			"item": [
+				{
+					"name": "Missing finish \u2014 400",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/api/trips/plan",
+						"description": "Serializer rejects the request before planning.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"start\": {\n    \"lat\": 35.4676,\n    \"lng\": -97.5164\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Missing field rejected\", () => { pm.response.to.have.status(400); pm.expect(pm.response.json()).to.have.property(\"finish\"); });"
+								]
+							}
+						}
+					],
+					"response": []
+				},
+				{
+					"name": "Outside supported USA \u2014 400",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{base_url}}/api/trips/plan",
+						"description": "London coordinates are rejected against local boundary data, without calling HERE.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"start\": {\n    \"lat\": 51.5074,\n    \"lng\": -0.1278\n  },\n  \"finish\": {\n    \"lat\": 35.0844,\n    \"lng\": -106.6504\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Unsupported coordinates rejected\", () => { pm.response.to.have.status(400); pm.expect(pm.response.json().error.code).to.equal(\"unsupported_location\"); });"
+								]
+							}
+						}
+					],
+					"response": []
+				}
+			]
+		}
+	]
+}

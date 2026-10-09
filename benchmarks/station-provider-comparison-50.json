@@ -1,0 +1,1129 @@
+{
+  "date": "2026-10-10",
+  "sample_seed": 20261010,
+  "population_unique_us_ids": 6626,
+  "sample_size": 50,
+  "sample_states": 28,
+  "source_file": "fuel-prices-for-be-assessment.csv",
+  "source_sha256": "c704371f141ded9c54df6c32d488a0ba2ceb589f88c936c967daa5330e0cd241",
+  "sampling": "First CSV row per unique US truckstop ID, sorted numerically, random.Random(20261010).sample(...,50).",
+  "query": "Trimmed station name, city, state, USA; address retained for review but not sent in query. Up to 3 candidates; continental-US geographic context; no retries, pagination, or details.",
+  "metric": "Manual plausible identity/location candidate match rate; NOT independently verified geospatial accuracy. First-ranked result scored; top-3 is separate.",
+  "rubric": {
+    "plausible_match": "Named business in expected locality/corridor, or supported branch/address/historical-site match. Some branch IDs remain unverified; notes disclose this.",
+    "ambiguous": "Potential site but identity/precision conflict, such as restaurant within travel stop or unresolved address discrepancy.",
+    "no_acceptable_match": "No result, locality/street-only result, wrong city/branch/corridor, or no defensible link to target."
+  },
+  "limitations": [
+    "No entrance-coordinate ground truth or routing validation.",
+    "Not all 50 identities independently corroborated; scores include plausible unverified matches.",
+    "Query strategy differs from nine-station trial: continental context replaces local bias to avoid extra geocoding calls.",
+    "Historical-site matches do not establish current fuel availability.",
+    "One matching Google result is marked permanently closed.",
+    "Small sample: each station changes score by 2 percentage points.",
+    "HTTP success is not matching accuracy; billing not inspected."
+  ],
+  "summary": {
+    "google": {
+      "requests": 50,
+      "successful_http_requests": 50,
+      "top1_counts": {
+        "plausible_match": 39,
+        "ambiguous": 2,
+        "no_acceptable_match": 9
+      },
+      "top1_percent": {
+        "plausible_match": 78,
+        "ambiguous": 4,
+        "no_acceptable_match": 18
+      },
+      "top3_plausible_percent": 82,
+      "median_response_seconds": 1.16
+    },
+    "here": {
+      "requests": 50,
+      "successful_http_requests": 50,
+      "top1_counts": {
+        "plausible_match": 33,
+        "ambiguous": 3,
+        "no_acceptable_match": 14
+      },
+      "top1_percent": {
+        "plausible_match": 66,
+        "ambiguous": 6,
+        "no_acceptable_match": 28
+      },
+      "top3_plausible_percent": 70,
+      "median_response_seconds": 0.53
+    }
+  },
+  "rows": [
+    {
+      "sample_index": 1,
+      "csv_row": {
+        "OPIS Truckstop ID": "66670",
+        "Truckstop Name": "SPEEDWAY #7930",
+        "Address": "I-40, 1126 N MAIN ST",
+        "City": "Lillington",
+        "State": "NC",
+        "Rack ID": "63",
+        "Retail Price": "3.759"
+      },
+      "review_note": "Name and numbered street address agree with CSV.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 2,
+      "csv_row": {
+        "OPIS Truckstop ID": "63727",
+        "Truckstop Name": "LOVES TRAVEL STOP #403",
+        "Address": "I-81, EXIT 3",
+        "City": "Binghamton",
+        "State": "NY",
+        "Rack ID": "32",
+        "Retail Price": "3.719"
+      },
+      "review_note": "Both return the same named travel stop in the target city; branch not independently confirmed in this run.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 3,
+      "csv_row": {
+        "OPIS Truckstop ID": "71399",
+        "Truckstop Name": "Loves Travel Stop  #809",
+        "Address": "I-70 & MO Hwy D, Exit 31",
+        "City": "Bates City",
+        "State": "MO",
+        "Rack ID": "400",
+        "Retail Price": "3.22066666"
+      },
+      "review_note": "Google matches official branch 809 address. HERE ranks a restaurant within that site first and another-city travel stop second; ambiguous for a fuel station.",
+      "corroborating_source": "https://www.loves.com/locations/mo/bates-city/loves-travel-stop-bates-city-809",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "ambiguous",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 4,
+      "csv_row": {
+        "OPIS Truckstop ID": "73042",
+        "Truckstop Name": "MAVERIK #728",
+        "Address": "Hwy 483",
+        "City": "Lovington",
+        "State": "NM",
+        "Rack ID": "593",
+        "Retail Price": "3.094"
+      },
+      "review_note": "Both match the official Maverik 728 location.",
+      "corroborating_source": "https://locations.maverik.com/nm/lovington/1906-s-main",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 5,
+      "csv_row": {
+        "OPIS Truckstop ID": "2629",
+        "Truckstop Name": "PILOT TRAVEL CENTERS #253",
+        "Address": "I-295 & NJ TRNPK,  EXIT 2B",
+        "City": "Penns Grove",
+        "State": "NJ",
+        "Rack ID": "243",
+        "Retail Price": "3.989"
+      },
+      "review_note": "Both match official Pilot 253 address; locality wording differs from CSV.",
+      "corroborating_source": "https://locations.pilotflyingj.com/us/nj/carneys-point/600-pennsville-auburn-rd",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 6,
+      "csv_row": {
+        "OPIS Truckstop ID": "72263",
+        "Truckstop Name": "SPARTAN FUELS",
+        "Address": "US-80 & SR-22",
+        "City": "Columbus",
+        "State": "GA",
+        "Rack ID": "50",
+        "Retail Price": "3.309"
+      },
+      "review_note": "Distinctive business name and street agree across providers; Columbus/Midland locality wording differs. Exact entrance unverified.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 7,
+      "csv_row": {
+        "OPIS Truckstop ID": "64285",
+        "Truckstop Name": "PILOT #4566",
+        "Address": "I-85, EXIT 106",
+        "City": "Blacksburg",
+        "State": "SC",
+        "Rack ID": "46",
+        "Retail Price": "3.429"
+      },
+      "review_note": "Google matches official Pilot 4566. HERE ranks another branch first; correct address is second.",
+      "corroborating_source": "https://locations.pilotflyingj.com/us/sc/blacksburg/2768-e-cherokee-st",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 8,
+      "csv_row": {
+        "OPIS Truckstop ID": "66278",
+        "Truckstop Name": "PILOT TRAVEL CENTERS #394",
+        "Address": "I-84, EXIT 6",
+        "City": "Newburgh",
+        "State": "NY",
+        "Rack ID": "32",
+        "Retail Price": "4.359"
+      },
+      "review_note": "Both return the same named Pilot in the target city; branch not independently confirmed in this run.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 9,
+      "csv_row": {
+        "OPIS Truckstop ID": "67642",
+        "Truckstop Name": "GO MART FOOD STORE #103",
+        "Address": "SR-16 & CR 50/39",
+        "City": "Ellenboro                               ",
+        "State": "WV",
+        "Rack ID": "44",
+        "Retail Price": "3.699"
+      },
+      "review_note": "Google has a plausible named business but east/west address direction conflicts with available corroboration; unresolved. HERE returns a locality.",
+      "google": {
+        "top1_review": "ambiguous",
+        "plausible_match_in_top3": false
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 10,
+      "csv_row": {
+        "OPIS Truckstop ID": "66241",
+        "Truckstop Name": "PUMP & PANTRY #29",
+        "Address": "US-30",
+        "City": "Central City",
+        "State": "NE",
+        "Rack ID": "330",
+        "Retail Price": "3.33733333"
+      },
+      "review_note": "Both return the same named business in the target city; branch not independently confirmed in this run.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 11,
+      "csv_row": {
+        "OPIS Truckstop ID": "66800",
+        "Truckstop Name": "CIRCLE K #2743950",
+        "Address": "I-35",
+        "City": "San Antonio",
+        "State": "TX",
+        "Rack ID": "740",
+        "Retail Price": "2.804"
+      },
+      "review_note": "Google candidates do not match the branch address in Texas regulatory records. HERE returns a locality.",
+      "corroborating_source": "https://records.tceq.texas.gov/cs/idcplg?IdcService=TCEQ_EXTERNAL_SEARCH_GET_FILE&Rendition=Web&dID=7499934",
+      "google": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 12,
+      "csv_row": {
+        "OPIS Truckstop ID": "64195",
+        "Truckstop Name": "DANDY MINI MART #14",
+        "Address": "I-86, EXIT 62",
+        "City": "Nichols",
+        "State": "NY",
+        "Rack ID": "32",
+        "Retail Price": "3.439"
+      },
+      "review_note": "Both match Dandy 14 address in a supplier directory.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 13,
+      "csv_row": {
+        "OPIS Truckstop ID": "71046",
+        "Truckstop Name": "SPEEDWAY #9336",
+        "Address": "US-27/SR-126",
+        "City": "Cincinnati",
+        "State": "OH",
+        "Rack ID": "300",
+        "Retail Price": "3.699"
+      },
+      "review_note": "Google first result matches branch 9336 address in township records. HERE candidates identify other branches.",
+      "corroborating_source": "https://www.colerain.org/AgendaCenter/ViewFile/Agenda/_12182018-310",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 14,
+      "csv_row": {
+        "OPIS Truckstop ID": "52585",
+        "Truckstop Name": "SUPERPUMPER #22",
+        "Address": "I-94, EXIT 42",
+        "City": "Belfield",
+        "State": "ND",
+        "Rack ID": "807",
+        "Retail Price": "3.529"
+      },
+      "review_note": "Google first result uses another brand but matches the historical station address in a state retailer directory. Current business continuity unverified. HERE returns a locality.",
+      "corroborating_source": "https://www.prideofdakota.nd.gov/retailers/profile/superpumperbelfield22/",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 15,
+      "csv_row": {
+        "OPIS Truckstop ID": "52455",
+        "Truckstop Name": "LOVES TRAVEL STOP #266",
+        "Address": "I-35, EXIT 32",
+        "City": "Ardmore",
+        "State": "OK",
+        "Rack ID": "253",
+        "Retail Price": "3.649"
+      },
+      "review_note": "Google matches official branch 266. HERE returns a restaurant at the site, ambiguous for station identity.",
+      "corroborating_source": "https://www.loves.com/locations/ok/ardmore/loves-travel-stop-ardmore-266",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "ambiguous",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 16,
+      "csv_row": {
+        "OPIS Truckstop ID": "67380",
+        "Truckstop Name": "MILLERS TRAVEL CENTER",
+        "Address": "I-80, EXIT 1",
+        "City": "Wendover",
+        "State": "UT",
+        "Rack ID": "835",
+        "Retail Price": "3.599"
+      },
+      "review_note": "Google returns a distinctive named business in the target town. HERE returns a locality. Exact highway access unverified.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 17,
+      "csv_row": {
+        "OPIS Truckstop ID": "72635",
+        "Truckstop Name": "GULF",
+        "Address": "SR-140",
+        "City": "Boylston",
+        "State": "MA",
+        "Rack ID": "34",
+        "Retail Price": "3.839"
+      },
+      "review_note": "Google returns a street instead of a business. HERE returns a Gulf site corroborated by a Gulf directory.",
+      "corroborating_source": "https://gulfinc.com/sites/default/files/2025-09/2025%20Red%20Sox%20%26%20Gulf%20Pay%20Road%20Win%20Promotion%20Terms%20%26%20Conditions-%20FINAL%209.24.25.pdf",
+      "google": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 18,
+      "csv_row": {
+        "OPIS Truckstop ID": "68698",
+        "Truckstop Name": "GAS N WASH",
+        "Address": "I-80, EXIT 145 & SR-84",
+        "City": "Mokena",
+        "State": "IL",
+        "Rack ID": "365",
+        "Retail Price": "3.499"
+      },
+      "review_note": "Both first results agree on named business and location; multiple same-brand alternatives exist, and exact entrance is unverified.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 19,
+      "csv_row": {
+        "OPIS Truckstop ID": "128",
+        "Truckstop Name": "THE EFFINGHAM CHROME SHOP",
+        "Address": "I-57 & I-70, EXIT 159",
+        "City": "Effingham                               ",
+        "State": "IL",
+        "Rack ID": "510",
+        "Retail Price": "3.399"
+      },
+      "review_note": "Google explicitly matches the named business and highway exit description; HERE agrees on the street address. Fuel availability unverified.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 20,
+      "csv_row": {
+        "OPIS Truckstop ID": "72871",
+        "Truckstop Name": "Maverik #727",
+        "Address": "I-8 EXIT 3",
+        "City": "Yuma",
+        "State": "AZ",
+        "Rack ID": "930",
+        "Retail Price": "3.179"
+      },
+      "review_note": "Both return the same named Maverik in the target city; branch association supported by directory search, entrance unverified.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 21,
+      "csv_row": {
+        "OPIS Truckstop ID": "70320",
+        "Truckstop Name": "SPEEDWAY #7177",
+        "Address": "I-24, EXIT 158 & SR-27",
+        "City": "Jasper",
+        "State": "TN",
+        "Rack ID": "285",
+        "Retail Price": "3.014"
+      },
+      "review_note": "Both return the same Speedway in the target city; branch not independently confirmed in this run.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 22,
+      "csv_row": {
+        "OPIS Truckstop ID": "69669",
+        "Truckstop Name": "LOVES TRAVEL STOP #623",
+        "Address": "I-20/SR-349, EXIT 131",
+        "City": "Midland",
+        "State": "TX",
+        "Rack ID": "710",
+        "Retail Price": "3.55566666"
+      },
+      "review_note": "Both match the branch 623 location found in the operator location listing.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 23,
+      "csv_row": {
+        "OPIS Truckstop ID": "65315",
+        "Truckstop Name": "SUNOCO- RICHARD STOCKTON PLAZA #7009",
+        "Address": "NJ TURNPIKE MILE POST 58.7 ",
+        "City": "Trenton",
+        "State": "NJ",
+        "Rack ID": "115",
+        "Retail Price": "3.899"
+      },
+      "review_note": "Google first result is the named plaza convenience store, not clearly its Sunoco pumps. HERE specifically identifies Sunoco at that plaza; entrance unverified.",
+      "google": {
+        "top1_review": "ambiguous",
+        "plausible_match_in_top3": false
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 24,
+      "csv_row": {
+        "OPIS Truckstop ID": "66248",
+        "Truckstop Name": "CIRCLE K #4707046",
+        "Address": "I-95, EXIT 6",
+        "City": "Scarborough",
+        "State": "ME",
+        "Rack ID": "170",
+        "Retail Price": "3.909"
+      },
+      "review_note": "Both match branch address in a Circle K job posting.",
+      "corroborating_source": "https://www.linkedin.com/jobs/view/4707046-external-manager-in-training-at-circle-k-4414405459",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 25,
+      "csv_row": {
+        "OPIS Truckstop ID": "68382",
+        "Truckstop Name": "QUIKTRIP #766",
+        "Address": "US-29 & SR-316",
+        "City": "Dacula",
+        "State": "GA",
+        "Rack ID": "18",
+        "Retail Price": "3.32066666"
+      },
+      "review_note": "Both first results match official QuikTrip 766 address.",
+      "corroborating_source": "https://locations.quiktrip.com/ga/dacula/1750-winder-hwy",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 26,
+      "csv_row": {
+        "OPIS Truckstop ID": "70778",
+        "Truckstop Name": "CASEYS #3588",
+        "Address": "I-75 N, EXIT 69",
+        "City": "Tipp City",
+        "State": "OH",
+        "Rack ID": "411",
+        "Retail Price": "3.099"
+      },
+      "review_note": "Both match branch address in the fuel-card network directory.",
+      "corroborating_source": "https://www.comdata.com/GallonUpLocations",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 27,
+      "csv_row": {
+        "OPIS Truckstop ID": "72816",
+        "Truckstop Name": "QUIKTRIP #7914",
+        "Address": "I-27 EXIT 117",
+        "City": "Amarillo",
+        "State": "TX",
+        "Rack ID": "585",
+        "Retail Price": "2.84566666"
+      },
+      "review_note": "Google first result matches official QuikTrip 7914 address. HERE returns a locality.",
+      "corroborating_source": "https://locations.quiktrip.com/tx/amarillo/7410-bell-street",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 28,
+      "csv_row": {
+        "OPIS Truckstop ID": "52529",
+        "Truckstop Name": "BIG SKY TRUCK STOP",
+        "Address": "I-15, EXIT 56 N",
+        "City": "Dillon",
+        "State": "MT",
+        "Rack ID": "786",
+        "Retail Price": "3.689"
+      },
+      "review_note": "Google first result is unrelated. HERE first result has another name but matches historical Big Sky address in Montana records; current continuity unverified.",
+      "corroborating_source": "https://www.deq.mt.gov/files/Water/WPB/NRISReports/MT0002484.pdf",
+      "google": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 29,
+      "csv_row": {
+        "OPIS Truckstop ID": "60700",
+        "Truckstop Name": "PWI #502",
+        "Address": "I-70/US-40, EXIT 259",
+        "City": "Golden",
+        "State": "CO",
+        "Rack ID": "800",
+        "Retail Price": "3.199"
+      },
+      "review_note": "Google returns no candidates. HERE returns a locality.",
+      "google": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 30,
+      "csv_row": {
+        "OPIS Truckstop ID": "66571",
+        "Truckstop Name": "LEXINGTON GULF",
+        "Address": "I-128, NORTH MASS PIKE",
+        "City": "Lexington                               ",
+        "State": "MA",
+        "Rack ID": "34",
+        "Retail Price": "4.299"
+      },
+      "review_note": "Google ranks a different Gulf branch first; matching highway-area candidate is second. HERE first result identifies Lexington Gulf at the address in a Gulf directory.",
+      "google": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 31,
+      "csv_row": {
+        "OPIS Truckstop ID": "65213",
+        "Truckstop Name": "CIRCLE K #2723390",
+        "Address": "US-98",
+        "City": "New Augusta",
+        "State": "MS",
+        "Rack ID": "620",
+        "Retail Price": "3.199"
+      },
+      "review_note": "Google returns named station matching CSV highway and locality. HERE returns a restaurant inside the site, ambiguous for fuel-station identity.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "ambiguous",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 32,
+      "csv_row": {
+        "OPIS Truckstop ID": "65441",
+        "Truckstop Name": "HUTCH'S #103",
+        "Address": "SR-6 & SR-66",
+        "City": "Elk City",
+        "State": "OK",
+        "Rack ID": "483",
+        "Retail Price": "2.969"
+      },
+      "review_note": "Google matches official Hutchs 103 address. HERE names Hutchs 103 with a nearby point; entrance unverified.",
+      "corroborating_source": "https://www.hutchs.net/locations/",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 33,
+      "csv_row": {
+        "OPIS Truckstop ID": "6742",
+        "Truckstop Name": "Holiday #3810",
+        "Address": "I-94/US-52, EXIT 178 & SR-24",
+        "City": "Clearwater",
+        "State": "MN",
+        "Rack ID": "453",
+        "Retail Price": "3.22066666"
+      },
+      "review_note": "Google matches branch address associated with operator store 3810 link; HERE returns localities.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 34,
+      "csv_row": {
+        "OPIS Truckstop ID": "72562",
+        "Truckstop Name": "7-ELEVEN #17703",
+        "Address": "US HWY 11",
+        "City": "Martinsburg",
+        "State": "WV",
+        "Rack ID": "70",
+        "Retail Price": "3.249"
+      },
+      "review_note": "Google ranks another branch first; likely branch 17703 is second. HERE first result explicitly names branch 17703.",
+      "google": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 35,
+      "csv_row": {
+        "OPIS Truckstop ID": "5980",
+        "Truckstop Name": "THRIFT MART TRUCK PLAZA",
+        "Address": "I-85/US-460, EXIT 63A & US-1/US-460 BUS",
+        "City": "Petersburg",
+        "State": "VA",
+        "Rack ID": "180",
+        "Retail Price": "3.199"
+      },
+      "review_note": "Both agree on distinctive business name, target city and matching road corridor. Exact entrance unverified.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 36,
+      "csv_row": {
+        "OPIS Truckstop ID": "71597",
+        "Truckstop Name": "Allsups #2380",
+        "Address": "US-84",
+        "City": "Sudan",
+        "State": "TX",
+        "Rack ID": "700",
+        "Retail Price": "3.199"
+      },
+      "review_note": "Both agree on brand, target town and CSV highway. Branch number not independently confirmed in this run.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 37,
+      "csv_row": {
+        "OPIS Truckstop ID": "3745",
+        "Truckstop Name": "PILOT TRAVEL CENTER #906-TOWN PUMP",
+        "Address": "I-90, EXIT 408 & SR-78",
+        "City": "Columbus",
+        "State": "MT",
+        "Rack ID": "780",
+        "Retail Price": "3.58066666"
+      },
+      "review_note": "Both first results identify the combined Pilot/Town Pump business in target town. Exact entrance unverified.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 38,
+      "csv_row": {
+        "OPIS Truckstop ID": "5560",
+        "Truckstop Name": "MIDWAY TRAVEL PLAZA",
+        "Address": "I-70 EXIT 121 & US-40",
+        "City": "Columbia",
+        "State": "MO",
+        "Rack ID": "310",
+        "Retail Price": "3.539"
+      },
+      "review_note": "Google first result agrees with CSV US-40 corridor. HERE first result is on another road; second result agrees with Google and CSV corridor.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 39,
+      "csv_row": {
+        "OPIS Truckstop ID": "64512",
+        "Truckstop Name": "QUICK FUEL #1001",
+        "Address": "I-94, EXIT 301",
+        "City": "New Berlin",
+        "State": "WI",
+        "Rack ID": "444",
+        "Retail Price": "3.499"
+      },
+      "review_note": "Both agree on business and target city; branch number and exit association not independently confirmed in this run.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 40,
+      "csv_row": {
+        "OPIS Truckstop ID": "66073",
+        "Truckstop Name": "EXXON",
+        "Address": "I-24 & HUSBAND ROAD, EXIT 11",
+        "City": "Paducah                                 ",
+        "State": "KY",
+        "Rack ID": "460",
+        "Retail Price": "3.15733333"
+      },
+      "review_note": "Neither provider returns a candidate on the CSV Husband Road corridor.",
+      "google": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 41,
+      "csv_row": {
+        "OPIS Truckstop ID": "67396",
+        "Truckstop Name": "Q C MART",
+        "Address": "US-61 & CR-E63",
+        "City": "Welton",
+        "State": "IA",
+        "Rack ID": "270",
+        "Retail Price": "3.699"
+      },
+      "review_note": "Google candidates are in another city. HERE returns a locality.",
+      "google": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 42,
+      "csv_row": {
+        "OPIS Truckstop ID": "65338",
+        "Truckstop Name": "SWIFT FUEL STOP",
+        "Address": "I-78, EXIT 13",
+        "City": "Newark                                  ",
+        "State": "NJ",
+        "Rack ID": "115",
+        "Retail Price": "3.879"
+      },
+      "review_note": "Google candidates do not match historical Swift Fuel address in AAA list. HERE returns a business in another state.",
+      "corroborating_source": "https://exchange.aaa.com/wp-content/uploads/2012/11/New-Jersey-Gas-Stations-11.9.12.pdf",
+      "google": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 43,
+      "csv_row": {
+        "OPIS Truckstop ID": "71517",
+        "Truckstop Name": "7-ELEVEN #41905",
+        "Address": "I-85 & CR-2120",
+        "City": "Salisbury",
+        "State": "NC",
+        "Rack ID": "46",
+        "Retail Price": "3.749"
+      },
+      "review_note": "Google matches branch 41905 address from corroborating listings. HERE explicitly names that branch with a nearby point but incomplete address.",
+      "corroborating_source": "https://www.exxonmobilfuels.com/en/exxon/exxongas/find-gas-station/7-eleven-41905-salisbury-nc-200327527",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 44,
+      "csv_row": {
+        "OPIS Truckstop ID": "3707",
+        "Truckstop Name": "SPEEDWAY #4704",
+        "Address": "I-90, EXIT 154",
+        "City": "Albert Lea",
+        "State": "MN",
+        "Rack ID": "425",
+        "Retail Price": "3.299"
+      },
+      "review_note": "Both locate the same named station; Google marks it permanently closed. Counted for identity matching, not refueling usability.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 45,
+      "csv_row": {
+        "OPIS Truckstop ID": "68738",
+        "Truckstop Name": "CASEYS #2316",
+        "Address": "US-136/SR-5 & SR-5",
+        "City": "Unionville",
+        "State": "MO",
+        "Rack ID": "320",
+        "Retail Price": "3.214"
+      },
+      "review_note": "Both agree on Casey brand, target city and street. Branch not independently confirmed in this run.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 46,
+      "csv_row": {
+        "OPIS Truckstop ID": "67294",
+        "Truckstop Name": "MAPLEFIELDS",
+        "Address": "I-87, EXIT 42/SR-11",
+        "City": "Champlain",
+        "State": "NY",
+        "Rack ID": "300",
+        "Retail Price": "3.799"
+      },
+      "review_note": "Google returns the named travel center; HERE returns a grocery listing on a different road. Specific highway-exit association still needs verification.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "no_acceptable_match",
+        "plausible_match_in_top3": false
+      }
+    },
+    {
+      "sample_index": 47,
+      "csv_row": {
+        "OPIS Truckstop ID": "7825",
+        "Truckstop Name": "PILOT TRAVEL CENTERS #356",
+        "Address": "I-65, EXIT 121",
+        "City": "Shepherdsville",
+        "State": "KY",
+        "Rack ID": "415",
+        "Retail Price": "3.609"
+      },
+      "review_note": "Both first results agree on named travel center and city. Branch not independently confirmed in this run.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 48,
+      "csv_row": {
+        "OPIS Truckstop ID": "72313",
+        "Truckstop Name": "THOMPSON'S CORNER",
+        "Address": "US-25",
+        "City": "Millen                                  ",
+        "State": "GA",
+        "Rack ID": "135",
+        "Retail Price": "3.31566666"
+      },
+      "review_note": "Both agree on distinctive business name, town and CSV highway.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 49,
+      "csv_row": {
+        "OPIS Truckstop ID": "67406",
+        "Truckstop Name": "GETGO #3701",
+        "Address": "I-99, EXIT 23",
+        "City": "East Freedom                            ",
+        "State": "PA",
+        "Rack ID": "14",
+        "Retail Price": "4.099"
+      },
+      "review_note": "HERE explicitly identifies branch 3701; Google agrees on business address.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    },
+    {
+      "sample_index": 50,
+      "csv_row": {
+        "OPIS Truckstop ID": "70284",
+        "Truckstop Name": "ROBINSON CORINTH IRVING",
+        "Address": "I-395 N, EXIT 3",
+        "City": "Corinth",
+        "State": "ME",
+        "Rack ID": "170",
+        "Retail Price": "3.93233333"
+      },
+      "review_note": "Google identifies the distinctive Robinson/Irving business; HERE agrees on address and fuel brand. CSV interstate description not independently validated.",
+      "google": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      },
+      "here": {
+        "top1_review": "plausible_match",
+        "plausible_match_in_top3": true
+      }
+    }
+  ]
+}

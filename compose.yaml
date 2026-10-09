@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: fuel
+      POSTGRES_USER: fuel
+      POSTGRES_PASSWORD: local-development-only
+    volumes:
+      - fuel_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fuel -d fuel"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  web:
+    build: .
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_NAME: fuel
+      DB_USER: fuel
+      DB_PASSWORD: local-development-only
+    volumes:
+      - .:/app
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  fuel_db:
